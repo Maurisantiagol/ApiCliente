@@ -1,0 +1,7 @@
+com\ipn\mx\apiclientes\controller\ClienteController.class
+com\ipn\mx\apiclientes\domain\entities\Cliente.class
+com\ipn\mx\apiclientes\ApiClientesApplication.class
+com\ipn\mx\apiclientes\service\ClienteService.class
+com\ipn\mx\apiclientes\service\impl\ClienteServiceImpl.class
+com\ipn\mx\apiclientes\domain\entities\Cliente$ClienteBuilder.class
+com\ipn\mx\apiclientes\domain\repository\ClienteRepository.class
