@@ -2,6 +2,8 @@
 
 API REST para la gestión de clientes, construida con Spring Boot. Expone operaciones CRUD sobre clientes y se conecta a una base de datos relacional con Spring Data JPA.
 
+> **Nota:** este repositorio es privado desde noviembre de 2026, porque una versión anterior de su configuración contenía una credencial de base de datos en texto plano.
+
 ## Qué hace
 
 - CRUD completo de clientes: listar todos, consultar por id, crear, actualizar y eliminar.
@@ -43,12 +45,12 @@ Ejemplo de cuerpo para crear o actualizar un cliente:
 
 ## Configuración
 
-La configuración está en `src/main/resources/application.properties`:
+Copia `src/main/resources/application.properties.example` como `src/main/resources/application.properties` y completa los valores con variables de entorno (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`) o con tus credenciales locales. El archivo `application.properties` real está ignorado por `.gitignore` y no se sube al repositorio.
 
 - Puerto del servidor: `8080`.
 - Base de datos: PostgreSQL (YugabyteDB en la nube), con JPA/Hibernate (`ddl-auto=update`, `show-sql=true`).
 
-> ⚠️ **Seguridad:** hoy la URL, el usuario y la contraseña de la base de datos están escritos en texto plano en `application.properties`, dentro del repositorio. Antes de compartir o desplegar este proyecto, muévelos a variables de entorno y rota la contraseña.
+> ⚠️ **Seguridad:** una versión anterior de `application.properties` contenía la contraseña de la base de datos en texto plano y se eliminó del repositorio en noviembre de 2026, pero la contraseña sigue en el historial de git: hay que rotarla en el proveedor de la base de datos.
 
 ## Cómo correr
 
@@ -92,7 +94,7 @@ ApiCliente/
 │       ├── ClienteService.java
 │       └── impl/          # Implementación del servicio
 ├── src/main/resources/
-│   └── application.properties
+│   └── application.properties.example   # Copiar como application.properties (no se sube al repo)
 ├── src/test/java/com/ipn/mx/apiclientes/
 ├── Dockerfile
 ├── pom.xml
@@ -102,10 +104,9 @@ ApiCliente/
 
 ## Qué le falta / pendientes
 
-- Sacar las credenciales de la base de datos de `application.properties` y pasarlas a variables de entorno; rotar la contraseña que hoy está en el historial del repositorio.
+- Rotar la contraseña de la base de datos en el proveedor (sigue en el historial de git, aunque el archivo con la credencial ya se eliminó y el repositorio es privado). Para borrarla del historial hay que reescribir el historial con git y hacer force push; no se hace desde la web.
 - Quitar la carpeta `target/` del control de versiones y asegurarse de que `.gitignore` la ignore (hoy está commiteada; borrarla desde la web no es seguro).
 - Unificar la versión de Java: el `pom.xml` declara Java 17 pero el compilador está en 21, y el `Dockerfile` usa JDK 17.
-- Añadir un `.env.example` con las variables necesarias, sin valores reales.
 
 ## Licencia
 
