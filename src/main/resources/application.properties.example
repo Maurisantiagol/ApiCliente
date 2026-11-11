@@ -1,0 +1,21 @@
+# ApiCliente — ejemplo de configuración
+# Copia este archivo como src/main/resources/application.properties
+# y completa los valores con variables de entorno o con tus credenciales locales.
+# NO subas el archivo application.properties real al repositorio.
+
+spring.application.name=ApiClientes
+server.port=8080
+
+# Base de datos PostgreSQL. Define estas variables de entorno, por ejemplo:
+#   DB_URL=jdbc:postgresql://host:5432/nombre_base
+#   DB_USERNAME=usuario
+#   DB_PASSWORD=contraseña
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/apiclientes}
+spring.datasource.username=${DB_USERNAME:postgres}
+spring.datasource.password=${DB_PASSWORD:}
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
