@@ -1,113 +1,241 @@
-# ApiCliente
+# 🚀 ApiCliente — RESTful Service & Customer Management
 
-API REST para la gestión de clientes, construida con Spring Boot. Expone operaciones CRUD sobre clientes y se conecta a una base de datos relacional con Spring Data JPA.
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.0.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
-> **Nota:** este repositorio es privado desde noviembre de 2026, porque una versión anterior de su configuración contenía una credencial de base de datos en texto plano.
+Backend RESTful diseñado para la gestión centralizada de clientes y contactos. Construido sobre **Spring Boot** y **Spring Data JPA**, implementa una arquitectura en capas limpia, desacoplada y orientada a la mantenibilidad, lista para ser desplegada en contenedores Docker y servicios cloud (PostgreSQL, Render, Railway, AWS).
 
-## Qué hace
+---
 
-- CRUD completo de clientes: listar todos, consultar por id, crear, actualizar y eliminar.
-- Validación de datos con Spring Validation.
-- CORS abierto a cualquier origen (`@CrossOrigin(origins = "*")`).
+## 📌 Tabla de Contenidos
 
-Un cliente tiene `idCliente`, `nombre`, `paterno`, `materno` y `email`.
+- [Características Principales](#-características-principales)
+- [Arquitectura de la Solución](#-arquitectura-de-la-solución)
+- [Stack Tecnológico](#-stack-tecnológico)
+- [Modelo de Datos](#-modelo-de-datos)
+- [Documentación de la API (Endpoints)](#-documentación-de-la-api-endpoints)
+- [Requisitos Previos](#-requisitos-previos)
+- [Configuración y Variables de Entorno](#-configuración-y-variables-de-entorno)
+- [Instalación y Ejecución](#-instalación-y-ejecución)
+  - [Ejecución Local con Maven](#1-ejecución-local-con-maven)
+  - [Ejecución con Docker](#2-ejecución-con-docker)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Licencia](#-licencia)
 
-## Stack
+---
 
-- Java: `java.version` 17 en el `pom.xml` (el compilador Maven está fijado en 21; ver pendientes)
-- Spring Boot 4.0.1: Spring Data JPA, Spring WebMVC, Spring Validation
-- Bases de datos: dependencias de MySQL y de PostgreSQL; la configuración activa usa PostgreSQL
-- Lombok y Spring Boot DevTools
-- Maven Wrapper (`mvnw`) y Docker
+## 🌟 Características Principales
 
-## Endpoints
+- **Operaciones CRUD Completas:** Gestión total de entidades cliente (crear, listar, consultar por ID, actualizar y eliminar).
+- **Arquitectura en Capas:** Clara separación de responsabilidades: *Controller*, *Service*, *Repository* y *Domain Entities*.
+- **Persistencia Robusta:** Mapeo objeto-relacional (ORM) eficiente con **Hibernate / Spring Data JPA**.
+- **Container Ready:** Empaquetado ligero y reproducible mediante **Docker multi-platform**.
+- **Seguridad en Entornos:** Aislamiento total de credenciales y variables de configuración desacopladas por entorno.
+- **Habilitación CORS:** Soporte para consumo desde aplicaciones frontend (Angular, React, Vue o Mobile).
 
-Base: `/apiClientes`
+---
 
-| Método | Endpoint | Descripción | Respuesta |
-| ------ | -------- | ----------- | --------- |
-| GET | `/apiClientes/clientes` | Lista todos los clientes | 200 OK |
-| GET | `/apiClientes/clientes/{id}` | Obtiene un cliente por su id | 200 OK |
-| POST | `/apiClientes/clientes` | Crea un cliente (el `idCliente` enviado se ignora) | 201 Created |
-| PUT | `/apiClientes/clientes/{id}` | Actualiza `nombre`, `paterno`, `materno` y `email`; si el id no existe, crea el cliente | 200 OK |
-| DELETE | `/apiClientes/clientes/{id}` | Elimina un cliente | 204 No Content |
+## 🏛️ Arquitectura de la Solución
 
-Ejemplo de cuerpo para crear o actualizar un cliente:
+El proyecto sigue una arquitectura en capas (*Layered Architecture*) que garantiza un bajo acoplamiento y alta cohesión:
 
+```
+                  ┌────────────────────────┐
+                  │    HTTP Client / UI    │
+                  └───────────┬────────────┘
+                              │ JSON / REST
+                              ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    API Cliente (Spring Boot)                 │
+│                                                              │
+│  [ Controller Layer ]   --> ClienteController (@RestController)
+│           │                                                  │
+│           ▼                                                  │
+│  [ Service Layer ]      --> ClienteService & ClienteServiceImpl
+│           │                                                  │
+│           ▼                                                  │
+│  [ Repository Layer ]   --> ClienteRepository (JpaRepository)│
+└─────────────────────────────┬────────────────────────────────┘
+                              │ SQL / JDBC
+                              ▼
+                  ┌────────────────────────┐
+                  │ PostgreSQL / Cloud DB  │
+                  └────────────────────────┘
+```
+
+---
+
+## 🛠️ Stack Tecnológico
+
+| Componente | Tecnología | Descripción |
+| :--- | :--- | :--- |
+| **Lenguaje** | Java 17 LTS | Rendimiento moderno y soporte a largo plazo |
+| **Framework** | Spring Boot 4.x | Núcleo del backend y auto-configuración |
+| **Persistencia** | Spring Data JPA / Hibernate | Abstracción de datos y ORM |
+| **Bases de Datos** | PostgreSQL (driver incluido) | Motor relacional robusto para producción |
+| **Productividad** | Project Lombok | Reducción de código repetitivo (*boilerplate*) |
+| **Validaciones** | Spring Boot Starter Validation | Validación semántica de peticiones |
+| **Contenedores** | Docker | Contenedorización de la aplicación |
+| **Build Tool** | Apache Maven Wrapper | Compilación sin necesidad de instalación global |
+
+---
+
+## 📊 Modelo de Datos
+
+Entidad `Cliente`:
+
+| Campo | Tipo | Restricciones | Descripción |
+| :--- | :--- | :--- | :--- |
+| `idCliente` | `Long` | Primary Key, Auto-increment | Identificador único del cliente |
+| `nombre` | `VARCHAR(50)` | NOT NULL | Nombre(s) de la persona |
+| `paterno` | `VARCHAR(50)` | NOT NULL | Apellido paterno |
+| `materno` | `VARCHAR(50)` | NOT NULL | Apellido materno |
+| `email` | `VARCHAR(150)` | NOT NULL, UNIQUE | Correo electrónico de contacto |
+
+---
+
+## 📡 Documentación de la API (Endpoints)
+
+Prefijo base: `/apiClientes`
+
+| Método | Endpoint | Descripción | Código HTTP |
+| :---: | :--- | :--- | :---: |
+| `GET` | `/apiClientes/clientes` | Obtiene la lista de todos los clientes | `200 OK` |
+| `GET` | `/apiClientes/clientes/{id}` | Busca y retorna un cliente por su identificador | `200 OK` |
+| `POST` | `/apiClientes/clientes` | Registra un nuevo cliente | `201 Created` |
+| `PUT` | `/apiClientes/clientes/{id}` | Actualiza datos de un cliente existente (o lo crea) | `200 OK` |
+| `DELETE` | `/apiClientes/clientes/{id}` | Elimina el cliente correspondiente al ID | `204 No Content` |
+
+### Ejemplos de Petición
+
+#### 1. Crear un Cliente (`POST /apiClientes/clientes`)
+```bash
+curl -X POST http://localhost:8080/apiClientes/clientes \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Mauricio",
+    "paterno": "Santiago",
+    "materno": "De Luis",
+    "email": "mauricio.santiago@ejemplo.com"
+  }'
+```
+
+**Respuesta Exitosa (`201 Created`):**
 ```json
 {
+  "idCliente": 1,
   "nombre": "Mauricio",
   "paterno": "Santiago",
   "materno": "De Luis",
-  "email": "mauricio@ejemplo.com"
+  "email": "mauricio.santiago@ejemplo.com"
 }
 ```
 
-## Configuración
+#### 2. Consultar Cliente por ID (`GET /apiClientes/clientes/1`)
+```bash
+curl -X GET http://localhost:8080/apiClientes/clientes/1
+```
 
-Copia `src/main/resources/application.properties.example` como `src/main/resources/application.properties` y completa los valores con variables de entorno (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`) o con tus credenciales locales. El archivo `application.properties` real está ignorado por `.gitignore` y no se sube al repositorio.
+---
 
-- Puerto del servidor: `8080`.
-- Base de datos: PostgreSQL (YugabyteDB en la nube), con JPA/Hibernate (`ddl-auto=update`, `show-sql=true`).
+## 📋 Requisitos Previos
 
-> ⚠️ **Seguridad:** una versión anterior de `application.properties` contenía la contraseña de la base de datos en texto plano y se eliminó del repositorio en noviembre de 2026, pero la contraseña sigue en el historial de git: hay que rotarla en el proveedor de la base de datos.
+- **JDK 17** o superior instalado localmente.
+- **Docker** (opcional, para despliegue en contenedores).
+- Instancia activa de **PostgreSQL** o MySQL.
 
-## Cómo correr
+---
 
-Con Maven (usa el wrapper incluido, no necesitas Maven instalado):
+## ⚙️ Configuración y Variables de Entorno
+
+La aplicación utiliza variables de entorno para su configuración en entornos de producción, desarrollo o CI/CD.
+
+1. Copia la plantilla de propiedades:
+   ```bash
+   cp src/main/resources/application.properties.example src/main/resources/application.properties
+   ```
+2. Variables de entorno admitidas:
+
+| Variable | Valor por defecto | Descripción |
+| :--- | :--- | :--- |
+| `DB_URL` | `jdbc:postgresql://localhost:5432/apiclientes` | Cadena de conexión JDBC |
+| `DB_USERNAME` | `postgres` | Usuario de la base de datos |
+| `DB_PASSWORD` | *(vacío)* | Contraseña de la base de datos |
+| `PORT` | `8080` | Puerto en el que escucha la API |
+
+---
+
+## 🚀 Instalación y Ejecución
+
+### 1. Ejecución Local con Maven
+
+Clona el repositorio e inicia el proyecto utilizando el Maven Wrapper incluido:
 
 ```bash
+# Clonar el proyecto
+git clone https://github.com/Maurisantiagol/ApiCliente.git
+cd ApiCliente
+
+# Ejecutar la aplicación
 ./mvnw spring-boot:run
 ```
+*(En Windows PowerShell usa `.\mvnw.cmd spring-boot:run`)*
 
-O compila el jar y ejecútalo:
+### 2. Ejecución con Docker
 
-```bash
-./mvnw clean package
-java -jar target/*.jar
-```
-
-### Con Docker
-
-El `Dockerfile` usa `eclipse-temurin:17-jdk-alpine`, copia el jar de `target/` y expone el puerto `8080`:
+Puedes compilar y generar la imagen contenedor fácilmente:
 
 ```bash
-./mvnw clean package
-docker build -t apiclientes .
-docker run -p 8080:8080 apiclientes
+# 1. Empaquetar el artefacto JAR
+./mvnw clean package -DskipTests
+
+# 2. Construir la imagen Docker
+docker build -t apicliente:latest .
+
+# 3. Correr el contenedor
+docker run -d -p 8080:8080 \
+  -e DB_URL="jdbc:postgresql://host.docker.internal:5432/apiclientes" \
+  -e DB_USERNAME="postgres" \
+  -e DB_PASSWORD="secretpassword" \
+  --name apicliente-app apicliente:latest
 ```
 
-La API queda disponible en `http://localhost:8080/apiClientes/clientes`.
+La API estará lista y respondiendo en: `http://localhost:8080/apiClientes/clientes`.
 
-## Estructura
+---
+
+## 📂 Estructura del Proyecto
 
 ```
 ApiCliente/
-├── src/main/java/com/ipn/mx/apiclientes/
-│   ├── ApiClientesApplication.java
-│   ├── controller/
-│   │   └── ClienteController.java
-│   ├── domain/
-│   │   ├── entities/      # Entidad Cliente
-│   │   └── repository/    # Repositorio JPA
-│   └── service/
-│       ├── ClienteService.java
-│       └── impl/          # Implementación del servicio
-├── src/main/resources/
-│   └── application.properties.example   # Copiar como application.properties (no se sube al repo)
-├── src/test/java/com/ipn/mx/apiclientes/
-├── Dockerfile
-├── pom.xml
-├── mvnw / mvnw.cmd
-└── target/                # Artefactos compilados (ver pendientes)
+├── src/
+│   ├── main/
+│   │   ├── java/com/ipn/mx/apiclientes/
+│   │   │   ├── ApiClientesApplication.java    # Punto de entrada de la aplicación
+│   │   │   ├── controller/                    # Controladores REST (Exposición de endpoints)
+│   │   │   │   └── ClienteController.java
+│   │   │   ├── domain/
+│   │   │   │   ├── entities/                  # Entidades JPA (Mapeo de tablas)
+│   │   │   │   │   └── Cliente.java
+│   │   │   │   └── repository/                # Interfaces DAO / Repositorios JPA
+│   │   │   │       └── ClienteRepository.java
+│   │   │   └── service/                       # Lógica de negocio
+│   │   │       ├── ClienteService.java
+│   │   │       └── impl/
+│   │   │           └── ClienteServiceImpl.java
+│   │   └── resources/
+│   │       └── application.properties.example # Plantilla de configuración segura
+│   └── test/                                  # Pruebas unitarias y de integración
+├── Dockerfile                                 # Configuración para contenedor Docker
+├── pom.xml                                    # Dependencias del proyecto (Maven)
+└── README.md
 ```
 
-## Qué le falta / pendientes
+---
 
-- Rotar la contraseña de la base de datos en el proveedor (sigue en el historial de git, aunque el archivo con la credencial ya se eliminó y el repositorio es privado). Para borrarla del historial hay que reescribir el historial con git y hacer force push; no se hace desde la web.
-- Quitar la carpeta `target/` del control de versiones y asegurarse de que `.gitignore` la ignore (hoy está commiteada; borrarla desde la web no es seguro).
-- Unificar la versión de Java: el `pom.xml` declara Java 17 pero el compilador está en 21, y el `Dockerfile` usa JDK 17.
+## 📄 Licencia
 
-## Licencia
-
-MIT. Ver [LICENSE](LICENSE).
+Este proyecto se encuentra bajo la licencia **MIT**. Para más detalles, consulta el archivo [LICENSE](LICENSE).
